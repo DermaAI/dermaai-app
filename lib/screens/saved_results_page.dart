@@ -26,129 +26,176 @@ class _SavedResultPageState extends State<SavedResultPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 600;
+    final isMediumScreen = screenWidth >= 600 && screenWidth < 1200;
+
     return Scaffold(
       backgroundColor: kPrimaryDark,
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            setState(() {
-              getData();
-            });
-          },
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: RefreshIndicator(
+              onRefresh: () async {
+                setState(() {
+                  getData();
+                });
+              },
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isSmallScreen ? 25 : 40,
+                  vertical: isSmallScreen ? 20 : 30,
+                ),
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 40),
-                    child: Text(
-                      'Saved Results',
-                      style: TextStyle(
-                          fontSize: getHeadingSize(context),
-                          fontFamily: 'Sora',
-                          fontWeight: FontWeight.w600),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  //Delete button
-                  GestureDetector(
-                    onTap: () async {
-                      //Show confirmation dialog
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text('Delete all results?'),
-                            content: const Text(
-                                'This action cannot be undone. Are you sure you want to delete all results?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  //Delete all results
-                                  await ResultModel.deleteAll().then((value) {
-                                    //Refresh the page
-                                    setState(() {
-                                      getData();
-                                    });
-                                    Navigator.pop(context);
-                                  });
-                                },
-                                child: const Text('Delete'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: isSmallScreen ? 40 : 60,
+                        ),
+                        child: Text(
+                          'Saved Results',
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 32 : 40,
+                            fontFamily: 'Sora',
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      // Delete button
+                      GestureDetector(
+                        onTap: () => _showDeleteConfirmationDialog(context),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: ksecondaryDark,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
                               ),
                             ],
-                          );
-                        },
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: ksecondaryDark,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      child: const Icon(Icons.delete),
-                    ),
-                  ),
-                ],
-              ),
-              FutureBuilder<List<ResultModel>>(
-                future: _results,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    if (snapshot.data!.isEmpty) {
-                      return Padding(
-                        padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * 0.3),
-                        child: const Center(
-                          child: Text(
-                            'Results will be saved here',
-                            style: TextStyle(
-                                fontSize: 20,
-                                fontFamily: 'Sora',
-                                fontWeight: FontWeight.w600),
+                          ),
+                          padding: EdgeInsets.all(isSmallScreen ? 10 : 12),
+                          child: Icon(
+                            Icons.delete,
+                            size: isSmallScreen ? 24 : 28,
+                            color: Colors.white,
                           ),
                         ),
-                      );
-                    }
-                    return ListView.builder(
-                      reverse: true,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (context, index) {
-                        ResultModel data = snapshot.data![index];
-                        return ResultCard(
-                          title: data.name,
-                          confidence: data.confidence.toString(),
-                          imagePath: data.imagePath,
-                          date: data.timestamp,
+                      ),
+                    ],
+                  ),
+                  FutureBuilder<List<ResultModel>>(
+                    future: _results,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        if (snapshot.data!.isEmpty) {
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              top: MediaQuery.of(context).size.height * 0.3,
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Results will be saved here',
+                                style: TextStyle(
+                                  fontSize: isSmallScreen ? 20 : 24,
+                                  fontFamily: 'Sora',
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        return GridView.builder(
+                          reverse: true,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: isSmallScreen ? 1 : (isMediumScreen ? 2 : 3),
+                            childAspectRatio: isSmallScreen ? 1.5 : 1.2,
+                            crossAxisSpacing: 20,
+                            mainAxisSpacing: 20,
+                          ),
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            ResultModel data = snapshot.data![index];
+                            return ResultCard(
+                              title: data.name,
+                              confidence: data.confidence.toString(),
+                              imagePath: data.imagePath,
+                              date: data.timestamp,
+                            );
+                          },
                         );
-                      },
-                    );
-                  } else {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                },
+                      } else {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                    },
+                  ),
+                  SizedBox(height: isSmallScreen ? 80 : 100),
+                ],
               ),
-              //CARDS
-              const SizedBox(
-                height: 80,
-              ),
-            ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _showDeleteConfirmationDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: kCardColor,
+        title: Text(
+          'Delete all results?',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: MediaQuery.of(context).size.width < 600 ? 20 : 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'This action cannot be undone. Are you sure you want to delete all results?',
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: MediaQuery.of(context).size.width < 600 ? 16 : 18,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              await ResultModel.deleteAll().then((value) {
+                setState(() {
+                  getData();
+                });
+                Navigator.pop(context);
+              });
+            },
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -24,54 +24,72 @@ class MainCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 600;
+    final isMediumScreen = screenWidth >= 600 && screenWidth < 1200;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 24),
+        margin: EdgeInsets.only(bottom: isSmallScreen ? 20 : 30),
+        padding: EdgeInsets.symmetric(
+          horizontal: isSmallScreen ? 25 : 30,
+          vertical: isSmallScreen ? 24 : 30,
+        ),
         decoration: BoxDecoration(
           color: kCardColor,
           borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
                 CircleAvatar(
-                  radius: 32,
+                  radius: isSmallScreen ? 32 : 40,
                   backgroundColor: avatarColor,
                   child: Container(
-                    padding: const EdgeInsets.all(14),
+                    padding: EdgeInsets.all(isSmallScreen ? 14 : 18),
                     child: Image.asset(
                       image,
                       fit: BoxFit.contain,
                     ),
                   ),
                 ),
-                const SizedBox(
-                  width: 20,
-                ),
+                SizedBox(width: isSmallScreen ? 20 : 25),
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
-                        fontFamily: 'Sora',
-                        fontSize: 25,
-                        fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontFamily: 'Sora',
+                      fontSize: isSmallScreen ? 25 : 28,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                fontFamily: 'Sora',
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
-                color: Colors.grey,
+            SizedBox(height: isSmallScreen ? 20 : 25),
+            Flexible(
+              child: Text(
+                subtitle,
+                style: TextStyle(
+                  fontFamily: 'Sora',
+                  fontSize: isSmallScreen ? 18 : 20,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.grey,
+                  height: 1.4,
+                ),
+                softWrap: true,
+                overflow: TextOverflow.visible,
               ),
             ),
           ],
@@ -97,20 +115,33 @@ class ResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 600;
+    final isMediumScreen = screenWidth >= 600 && screenWidth < 1200;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 25),
+      margin: EdgeInsets.only(bottom: isSmallScreen ? 25 : 30),
       width: double.infinity,
-      height: MediaQuery.of(context).size.height * 0.35,
+      height: isSmallScreen 
+          ? MediaQuery.of(context).size.height * 0.35
+          : MediaQuery.of(context).size.height * 0.4,
       decoration: BoxDecoration(
         color: kCardColor,
         borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Expanded(
             flex: 2,
             child: Container(
-              padding: const EdgeInsets.all(15),
+              padding: EdgeInsets.all(isSmallScreen ? 15 : 20),
               child: Row(
                 children: [
                   Expanded(
@@ -119,39 +150,40 @@ class ResultCard extends StatelessWidget {
                       child: Image.file(
                         File(imagePath),
                         fit: BoxFit.cover,
-                        height: 118,
+                        height: isSmallScreen ? 118 : 150,
                       ),
                     ),
                   ),
-                  const SizedBox(
-                    width: 30,
-                  ),
+                  SizedBox(width: isSmallScreen ? 30 : 40),
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 10),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isSmallScreen ? 5 : 10,
+                        vertical: isSmallScreen ? 10 : 15,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Column(
                         children: [
-                          const Text(
+                          Text(
                             'Confidence',
                             style: TextStyle(
-                              color: Color.fromARGB(255, 113, 113, 113),
+                              color: const Color.fromARGB(255, 113, 113, 113),
                               fontFamily: 'Sora',
                               fontWeight: FontWeight.w600,
+                              fontSize: isSmallScreen ? 16 : 18,
                             ),
                           ),
                           Expanded(
                             child: Center(
                               child: Text(
                                 '${confidence.substring(0, 5)}%',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: 'Sora',
                                   color: Colors.black,
-                                  fontSize: 28,
+                                  fontSize: isSmallScreen ? 28 : 32,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -168,7 +200,10 @@ class ResultCard extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+              padding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 15 : 25,
+                vertical: isSmallScreen ? 20 : 25,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -178,48 +213,48 @@ class ResultCard extends StatelessWidget {
                       Expanded(
                         flex: 2,
                         child: Text(
-                          'Pigmented Benign Kartosis',
+                          title,
                           style: TextStyle(
                             fontFamily: 'Sora',
-                            fontSize: 25,
+                            fontSize: isSmallScreen ? 25 : 28,
                             fontWeight: FontWeight.w600,
                           ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
                         ),
                       ),
-                      const SizedBox(
-                        width: 10,
-                      ),
+                      SizedBox(width: isSmallScreen ? 10 : 15),
                       GestureDetector(
                         onTap: () async {
-                          //get name from shared preferences
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
                           String name = prefs.getString('name') ?? 'User';
-
-                          await generatePdf(
-                              name, title, confidence, File(imagePath), date);
+                          await generatePdf(name, title, confidence, File(imagePath), date);
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 22, vertical: 20),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isSmallScreen ? 22 : 25,
+                            vertical: isSmallScreen ? 20 : 22,
+                          ),
                           decoration: BoxDecoration(
                             color: kblue,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Center(
-                            child: Icon(Icons.summarize),
+                          child: Icon(
+                            Icons.summarize,
+                            size: isSmallScreen ? 24 : 28,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: isSmallScreen ? 20 : 25),
                   Text(
                     getDateFromTimestamp(date),
-                    style: const TextStyle(
-                        fontFamily: 'Sora', color: Colors.grey, fontSize: 16),
+                    style: TextStyle(
+                      fontFamily: 'Sora',
+                      color: Colors.grey,
+                      fontSize: isSmallScreen ? 16 : 18,
+                    ),
                   ),
                 ],
               ),
@@ -231,8 +266,8 @@ class ResultCard extends StatelessWidget {
   }
 
   String getDateFromTimestamp(String date) {
-    final DateTime dateTime =
-        DateTime.fromMillisecondsSinceEpoch(int.parse(date));
+    final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(int.parse(date));
     return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
   }
 }
+
